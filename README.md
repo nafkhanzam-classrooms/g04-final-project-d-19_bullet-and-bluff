@@ -6,14 +6,40 @@
 | 5025241067 | Bagus Cahya Saputra |
 | 5025241165 | Rafi Aqila Maulana  |
 
-# Bullet and Bluff Online (Liar's Deck)
+# Bullet and Bluff Online
 
 ![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python&logoColor=white)
 ![GUI](https://img.shields.io/badge/GUI-Pygame-orange)
 ![Network](https://img.shields.io/badge/Network-Socket%20TCP-brightgreen)
 ![Status](https://img.shields.io/badge/Status-Completed-brightgreen)
 
-Repositori ini berisi implementasi **Bullet and Bluff Online** (Liar's Deck), sebuah permainan kartu multiplayer online. Dokumentasi ini merinci spesifikasi fitur dan mendokumentasikan seluruh class serta fungsi Python dalam codebase.
+<img width="1622" height="1072" alt="image" src="https://github.com/user-attachments/assets/b1bc8c2d-e57a-4523-a643-f1642222306b" />
+
+Bullet & Bluff adalah game multiplayer berbasis strategi, psikologi, dan kemampuan menggertak (bluffing) yang menantang pemain untuk bertahan hidup hingga menjadi orang terakhir yang tersisa.
+
+Dalam permainan ini, setiap pemain secara bergiliran mengajukan klaim mengenai kartu, item, atau aksi yang mereka lakukan. Pemain lain harus memutuskan apakah akan mempercayai klaim tersebut atau menuduh bahwa pemain sedang berbohong. Setiap keputusan memiliki risiko tinggi karena tuduhan yang salah maupun kebohongan yang terbongkar dapat berakibat fatal.
+
+Sebagai hukuman, pemain yang kalah dalam konfrontasi harus menghadapi permainan keberuntungan menggunakan revolver yang berisi campuran peluru asli dan peluru kosong. Ketegangan terus meningkat seiring berkurangnya jumlah pemain dan semakin sulitnya membedakan kebenaran dari kebohongan.
+
+#### Fitur Utama
+🎭 Sistem bluffing dan deduksi sosial.
+🔫 Mekanisme risiko menggunakan peluru asli dan peluru kosong.
+👥 Multiplayer kompetitif.
+🧠 Menguji kemampuan membaca perilaku dan strategi lawan.
+🏆 Last Player Standing sebagai pemenang.
+
+#### Tujuan Permainan
+Menjadi pemain terakhir yang bertahan hidup dengan memanfaatkan kombinasi strategi, keberanian mengambil risiko, kemampuan berbohong, dan kecerdikan dalam mengungkap kebohongan lawan.
+
+#### Genre
+Social Deduction
+Bluffing
+Strategy
+Party Game
+Multiplayer
+
+#### Tagline:
+"Percaya atau tuduh. Satu kebohongan bisa menyelamatkanmu, satu kesalahan bisa mengakhiri permainan."
 
 ---
 
