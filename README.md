@@ -18,7 +18,8 @@
 ![Network](https://img.shields.io/badge/Network-Socket%20TCP-brightgreen)
 ![Status](https://img.shields.io/badge/Status-Completed-brightgreen)
 
-<img width="1622" height="1072" alt="image" src="https://github.com/user-attachments/assets/b1bc8c2d-e57a-4523-a643-f1642222306b" />
+<img width="1276" height="715" alt="image" src="https://github.com/user-attachments/assets/88d41a6d-fda0-42bc-8643-ab2aff5fc5d4" />
+
 
 Bullet & Bluff adalah game multiplayer berbasis strategi, psikologi, dan kemampuan menggertak (bluffing) yang menantang pemain untuk bertahan hidup hingga menjadi orang terakhir yang tersisa.
 
