@@ -8,6 +8,7 @@
 
 
 ## Demo Singkat
+[Video Demo Bullet and Bluff](https://drive.google.com/drive/folders/1o65JNP0sNF3SLfhiRuEXWIU35-l-6UBP?usp=sharing)
 
 
 # Bullet and Bluff Online
