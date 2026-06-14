@@ -943,3 +943,36 @@ def _handle_reconnect(self, packet):
 | `server/game_engine.py` | **`build_state_for_player`:** Selalu menyertakan `roulette_state` (berisi `target_player_id`, `pull_number`, `chamber_count`, `survived: None`) saat engine berada di `PHASE_ROULETTE`. Sebelumnya, `roulette_state` hanya dikirim via paket `S_ROULETTE_START` yang bisa hilang jika broadcast gagal. Dengan selalu menyertakannya di state update, klien yang reconnect mendapat data roulette lengkap meskipun melewatkan paket broadcast sebelumnya. | Masalah 4 |
 | `server/room_manager.py` | Penambahan `_player_room_map` (dict `player_id → room_id`) untuk pencarian room O(1) tanpa scan seluruh room aktif. Fungsi baru: `create_private_room()` (membuat room privat dengan kode unik dan status WAITING), `get_room_by_code()` (pencarian room case-insensitive berdasarkan kode), `add_player_to_room()` (menambahkan pemain ke room WAITING yang sudah ada), `remove_player_from_room()` (menghapus pemain, mengalihkan host jika perlu, menghapus room jika kosong), `get_room_players()` (mengembalikan info pemain di room). | Masalah 3 |
 | `server/main_server.py` | **`start_match`:** Penambahan `room.status = 'IN_GAME'` setelah `create_room()` berhasil, sinkron dengan perbaikan yang sama di `client_handler.py`. | Masalah 3 |
+
+## Tampilan Permainan
+
+Home 
+<img width="1920" height="1058" alt="image" src="https://github.com/user-attachments/assets/d43bf9c2-f8fd-45a2-8875-d465277660a9" />
+
+
+Main Menu
+<img width="1920" height="1070" alt="image" src="https://github.com/user-attachments/assets/c5093840-2f6a-43df-aafd-4750f05e36eb" />
+
+
+Quick Match
+<img width="1920" height="1065" alt="image" src="https://github.com/user-attachments/assets/42977039-e26e-48d1-844f-584845c2e87d" />
+
+
+Room
+<img width="1914" height="1062" alt="image" src="https://github.com/user-attachments/assets/f1b43942-8452-46c4-adbf-3be8a80e3d89" />
+
+
+Gameplay
+<img width="1600" height="928" alt="image" src="https://github.com/user-attachments/assets/33651d85-1936-4131-928a-2c5874471b56" />
+
+
+Spectactor
+<img width="1600" height="999" alt="WhatsApp Image 2026-06-14 at 23 42 08" src="https://github.com/user-attachments/assets/065a977b-c490-4d56-93d9-dedd9f29a1ae" />
+
+
+Menang
+<img width="1920" height="1064" alt="image" src="https://github.com/user-attachments/assets/401cfbaa-4efe-4ce4-9bb2-2ab5021fcce3" />
+
+
+Kalah
+<img width="1919" height="1083" alt="image" src="https://github.com/user-attachments/assets/6d5763c6-2388-40f3-8a3e-71d97c370b76" />
