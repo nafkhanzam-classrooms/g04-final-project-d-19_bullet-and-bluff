@@ -21,25 +21,25 @@ Dalam permainan ini, setiap pemain secara bergiliran mengajukan klaim mengenai k
 
 Sebagai hukuman, pemain yang kalah dalam konfrontasi harus menghadapi permainan keberuntungan menggunakan revolver yang berisi campuran peluru asli dan peluru kosong. Ketegangan terus meningkat seiring berkurangnya jumlah pemain dan semakin sulitnya membedakan kebenaran dari kebohongan.
 
-#### Fitur Utama
-🎭 Sistem bluffing dan deduksi sosial.
-🔫 Mekanisme risiko menggunakan peluru asli dan peluru kosong.
-👥 Multiplayer kompetitif.
-🧠 Menguji kemampuan membaca perilaku dan strategi lawan.
-🏆 Last Player Standing sebagai pemenang.
+## 1. Fitur Utama
+- Sistem bluffing dan deduksi sosial.
+- Mekanisme risiko menggunakan peluru asli dan peluru kosong.
+- Multiplayer kompetitif.
+- Menguji kemampuan membaca perilaku dan strategi lawan.
+- Last Player Standing sebagai pemenang.
 
-#### Tujuan Permainan
+## 2. Tujuan Permainan
 Menjadi pemain terakhir yang bertahan hidup dengan memanfaatkan kombinasi strategi, keberanian mengambil risiko, kemampuan berbohong, dan kecerdikan dalam mengungkap kebohongan lawan.
 
-#### Genre
-Social Deduction
-Bluffing
-Strategy
-Party Game
-Multiplayer
+## 3. Genre
+- Social Deduction
+- Bluffing
+- Strategy
+- Party Game
+- Multiplayer
 
-#### Tagline:
-"Percaya atau tuduh. Satu kebohongan bisa menyelamatkanmu, satu kesalahan bisa mengakhiri permainan."
+## 4. Tagline
+> "Percaya atau tuduh. Satu kebohongan bisa menyelamatkanmu, satu kesalahan bisa mengakhiri permainan."
 
 ---
 
