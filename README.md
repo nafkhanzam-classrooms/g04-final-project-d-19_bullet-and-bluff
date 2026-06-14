@@ -6,6 +6,10 @@
 | 5025241067 | Bagus Cahya Saputra |
 | 5025241165 | Rafi Aqila Maulana  |
 
+
+## Demo Singkat
+
+
 # Bullet and Bluff Online
 
 ![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python&logoColor=white)
