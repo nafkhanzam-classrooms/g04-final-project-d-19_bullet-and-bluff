@@ -54,9 +54,9 @@ Menjadi pemain terakhir yang bertahan hidup dengan memanfaatkan kombinasi strate
 
 ---
 
-## 1. Pemenuhan Persyaratan & Lokasi Implementasi
+## 1. Pemenuhan Syarat dan Ketentuan serta Implementasi
 
-Berikut adalah rincian lokasi implementasi setiap ketentuan:
+Berikut adalah rincian Implementasi sesuai dengan Syarat dan Ketentuan:
 
 ### Ketentuan Dasar
 | Ketentuan | Lokasi File Terkait | Penjelasan Implementasi |
