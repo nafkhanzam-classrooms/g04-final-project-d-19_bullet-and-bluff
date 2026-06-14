@@ -1,0 +1,480 @@
+from client.config import get_custom_font, resource_path
+import pygame
+import math
+import time
+import os
+try:
+    import cv2
+    import numpy as np
+except ImportError:
+    cv2 = None
+    np = None
+from client.config import SCREEN_WIDTH, SCREEN_HEIGHT, COLOR_BG, COLOR_GOLD, COLOR_WHITE, COLOR_TEXT_DIM, COLOR_INPUT_BG, COLOR_INPUT_BORDER, COLOR_INPUT_ACTIVE, COLOR_RED, COLOR_ORANGE, COLOR_GREEN, FONT_SIZE_TITLE, FONT_SIZE_MEDIUM, FONT_SIZE_SMALL, FONT_SIZE_TINY, BUTTON_WIDTH, BUTTON_HEIGHT, DEFAULT_SERVER_IP, DEFAULT_PORT
+from client.components.button import Button
+from client.session_manager import load_session
+
+class _InputField:
+    """
+    /**
+     * Class _InputField
+     * 
+     * Internal component of the architecture.
+     */
+    """
+
+    def __init__(self, x, y, w, h, label: str, default: str='', max_len: int=30):
+        """
+    /**
+     * Function __init__
+     * 
+     * Internal helper function that supports the primary game logic without exposing its internals.
+     * 
+     * parameters:
+     * - x: Method argument required for execution.
+     * - y: Method argument required for execution.
+     * - w: Method argument required for execution.
+     * - h: Method argument required for execution.
+     * - label: Method argument required for execution.
+     * - default: Method argument required for execution.
+     * - max_len: Method argument required for execution.
+     * 
+     * returns:
+     * - State modification or queried value based on execution.
+     */
+    """
+        self.rect = pygame.Rect(x, y, w, h)
+        self.label = label
+        self.text = default
+        self.max_len = max_len
+        self.active = False
+        self._cursor_blink = 0.0
+        self._font = None
+        self._label_font = None
+
+    def _get_font(self):
+        """
+    /**
+     * Function _get_font
+     * 
+     * Internal helper function that supports the primary game logic without exposing its internals.
+     * 
+     * parameters:
+     * - None
+     * 
+     * returns:
+     * - State modification or queried value based on execution.
+     */
+    """
+        if self._font is None:
+            self._font = get_custom_font(22)
+        return self._font
+
+    def _get_label_font(self):
+        """
+    /**
+     * Function _get_label_font
+     * 
+     * Internal helper function that supports the primary game logic without exposing its internals.
+     * 
+     * parameters:
+     * - None
+     * 
+     * returns:
+     * - State modification or queried value based on execution.
+     */
+    """
+        if self._label_font is None:
+            self._label_font = get_custom_font(16)
+        return self._label_font
+
+    def handle_event(self, event: pygame.event.Event):
+        """
+    /**
+     * Function handle_event
+     * 
+     * Internal helper function that supports the primary game logic without exposing its internals.
+     * 
+     * parameters:
+     * - event: Method argument required for execution.
+     * 
+     * returns:
+     * - State modification or queried value based on execution.
+     */
+    """
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            self.active = self.rect.collidepoint(event.pos)
+        if event.type == pygame.KEYDOWN and self.active:
+            if event.key == pygame.K_BACKSPACE:
+                self.text = self.text[:-1]
+            elif event.key == pygame.K_TAB or event.key == pygame.K_RETURN:
+                pass
+            elif event.unicode and len(self.text) < self.max_len:
+                if event.unicode.isprintable():
+                    self.text += event.unicode
+
+    def draw(self, surface: pygame.Surface):
+        """
+    /**
+     * Function draw
+     * 
+     * Internal helper function that supports the primary game logic without exposing its internals.
+     * 
+     * parameters:
+     * - surface: Method argument required for execution.
+     * 
+     * returns:
+     * - State modification or queried value based on execution.
+     */
+    """
+        lf = self._get_label_font()
+        lbl = lf.render(self.label, True, COLOR_TEXT_DIM)
+        surface.blit(lbl, (self.rect.x, self.rect.y - 20))
+        pygame.draw.rect(surface, COLOR_INPUT_BG, self.rect, border_radius=6)
+        border_col = COLOR_INPUT_ACTIVE if self.active else COLOR_INPUT_BORDER
+        pygame.draw.rect(surface, border_col, self.rect, width=2, border_radius=6)
+        font = self._get_font()
+        txt = font.render(self.text, True, COLOR_WHITE)
+        surface.blit(txt, (self.rect.x + 10, self.rect.y + 8))
+        if self.active:
+            self._cursor_blink += 0.05
+            if math.sin(self._cursor_blink * 3) > 0:
+                cx = self.rect.x + 12 + txt.get_width()
+                pygame.draw.line(surface, COLOR_GOLD, (cx, self.rect.y + 8), (cx, self.rect.y + self.rect.h - 8), 2)
+
+class LoginScreen:
+    """
+    /**
+     * Class LoginScreen
+     * 
+     * The initial welcome gateway. It takes raw keyboard strings and constructs the IP address and username variables needed for socket connection.
+     */
+    """
+
+    def __init__(self):
+        """
+    /**
+     * Function __init__
+     * 
+     * Internal helper function that supports the primary game logic without exposing its internals.
+     * 
+     * parameters:
+     * - None
+     * 
+     * returns:
+     * - State modification or queried value based on execution.
+     */
+    """
+        cx = SCREEN_WIDTH // 2
+        field_w = 320
+        field_h = 40
+        self.input_username = _InputField(cx - field_w // 2, 290, field_w, field_h, 'Username', '', 16)
+        self.input_ip = _InputField(cx - field_w // 2, 370, field_w, field_h, 'Server IP', DEFAULT_SERVER_IP, 45)
+        self.input_port = _InputField(cx - field_w // 2, 450, field_w, field_h, 'Port', str(DEFAULT_PORT), 5)
+        self.fields = [self.input_username, self.input_ip, self.input_port]
+        self.btn_connect = Button(cx - BUTTON_WIDTH // 2, 530, BUTTON_WIDTH, BUTTON_HEIGHT, 'CONNECT')
+        self.error_msg: str = ''
+        # Reconnect support — load the most-recent saved session for the preview
+        # and, if present, pre-fill the login fields so RECONNECT acts on the
+        # correct (per-username) session file.
+        self._saved_session = load_session()
+        if self._saved_session:
+            self.input_username.text = self._saved_session.get('username', '')
+            self.input_ip.text = str(self._saved_session.get('ip', self.input_ip.text))
+            self.input_port.text = str(self._saved_session.get('port', self.input_port.text))
+        self.btn_reconnect = Button(cx - BUTTON_WIDTH // 2, 600, BUTTON_WIDTH, BUTTON_HEIGHT, 'RECONNECT', border_color=COLOR_ORANGE)
+        self._reconn_font: pygame.font.Font | None = None
+        self._title_font: pygame.font.Font | None = None
+        self._sub_font: pygame.font.Font | None = None
+        self._err_font: pygame.font.Font | None = None
+        self._start_time = time.time()
+        self.video_path = resource_path(os.path.join('client', 'assets', 'scene', 'YTDown_YouTube_Honkai-Star-Rail-Main-Menu-Animation_Media_a1dmueMsE3M_001_1080p.mp4'))
+        if not os.path.exists(self.video_path):
+            self.video_path = resource_path(os.path.join('assets', 'scene', 'YTDown_YouTube_Honkai-Star-Rail-Main-Menu-Animation_Media_a1dmueMsE3M_001_1080p.mp4'))
+        self.cap = None
+        if cv2 is not None:
+            self.cap = cv2.VideoCapture(self.video_path)
+        self._title_img = None
+        self._load_title_img()
+
+    def _load_title_img(self):
+        """
+    /**
+     * Function _load_title_img
+     * 
+     * Internal helper function that supports the primary game logic without exposing its internals.
+     * 
+     * parameters:
+     * - None
+     * 
+     * returns:
+     * - State modification or queried value based on execution.
+     */
+    """
+        path = resource_path(os.path.join('client', 'assets', 'images', 'Title.png'))
+        if not os.path.exists(path):
+            path = resource_path(os.path.join('assets', 'images', 'Title.png'))
+        try:
+            self._title_img = pygame.image.load(path).convert_alpha()
+        except Exception:
+            self._title_img = None
+
+    def _get_title_font(self):
+        """
+    /**
+     * Function _get_title_font
+     * 
+     * Internal helper function that supports the primary game logic without exposing its internals.
+     * 
+     * parameters:
+     * - None
+     * 
+     * returns:
+     * - State modification or queried value based on execution.
+     */
+    """
+        if self._title_font is None:
+            self._title_font = get_custom_font(FONT_SIZE_TITLE)
+        return self._title_font
+
+    def _get_sub_font(self):
+        """
+    /**
+     * Function _get_sub_font
+     * 
+     * Internal helper function that supports the primary game logic without exposing its internals.
+     * 
+     * parameters:
+     * - None
+     * 
+     * returns:
+     * - State modification or queried value based on execution.
+     */
+    """
+        if self._sub_font is None:
+            self._sub_font = get_custom_font(FONT_SIZE_MEDIUM)
+        return self._sub_font
+
+    def _get_err_font(self):
+        """
+    /**
+     * Function _get_err_font
+     * 
+     * Internal helper function that supports the primary game logic without exposing its internals.
+     * 
+     * parameters:
+     * - None
+     * 
+     * returns:
+     * - State modification or queried value based on execution.
+     */
+    """
+        if self._err_font is None:
+            self._err_font = get_custom_font(FONT_SIZE_SMALL)
+        return self._err_font
+
+    def handle_event(self, event: pygame.event.Event) -> dict | None:
+        """
+    /**
+     * Function handle_event
+     * 
+     * Internal helper function that supports the primary game logic without exposing its internals.
+     * 
+     * parameters:
+     * - event: Method argument required for execution.
+     * 
+     * returns:
+     * - State modification or queried value based on execution.
+     */
+    """
+        for f in self.fields:
+            f.handle_event(event)
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_TAB:
+            active_idx = -1
+            for i, f in enumerate(self.fields):
+                if f.active:
+                    active_idx = i
+                    f.active = False
+                    break
+            next_idx = (active_idx + 1) % len(self.fields)
+            self.fields[next_idx].active = True
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+            return self._try_connect()
+        if self.btn_connect.is_clicked(event):
+            return self._try_connect()
+        if self._saved_session and self.btn_reconnect.is_clicked(event):
+            return self._try_reconnect()
+        return None
+
+    def _try_connect(self) -> dict | None:
+        """
+    /**
+     * Function _try_connect
+     * 
+     * Internal helper function that supports the primary game logic without exposing its internals.
+     * 
+     * parameters:
+     * - None
+     * 
+     * returns:
+     * - State modification or queried value based on execution.
+     */
+    """
+        username = self.input_username.text.strip()
+        ip = self.input_ip.text.strip()
+        port_str = self.input_port.text.strip()
+        if not username:
+            self.error_msg = 'Enter a username'
+            return None
+        if not ip:
+            self.error_msg = 'Enter server IP'
+            return None
+        try:
+            port = int(port_str)
+        except ValueError:
+            self.error_msg = 'Invalid port'
+            return None
+        self.error_msg = ''
+        return {'username': username, 'ip': ip, 'port': port}
+
+    def _try_reconnect(self) -> dict | None:
+        """
+    /**
+     * Function _try_reconnect
+     *
+     * Attempts to use saved session credentials to reconnect to the server without re-entering login details.
+     *
+     * parameters:
+     * - None
+     *
+     * returns:
+     * - State modification or queried value based on execution.
+     */
+    """
+        username = self.input_username.text.strip()
+        if not username:
+            self.error_msg = 'Enter your username, then click RECONNECT'
+            return None
+        session = load_session(username)
+        if not session:
+            self.error_msg = f'No saved session for {username}'
+            return None
+        self.error_msg = ''
+        return {
+            'reconnect': True,
+            'player_id': session['player_id'],
+            'session_token': session['session_token'],
+            'username': session['username'],
+            'ip': session['ip'],
+            'port': session['port']
+        }
+
+    def _draw_bg_video(self, surface: pygame.Surface):
+        """
+    /**
+     * Function _draw_bg_video
+     * 
+     * Internal helper function that supports the primary game logic without exposing its internals.
+     * 
+     * parameters:
+     * - surface: Method argument required for execution.
+     * 
+     * returns:
+     * - State modification or queried value based on execution.
+     */
+    """
+        if self.cap is not None and self.cap.isOpened():
+            success, frame = self.cap.read()
+            if not success:
+                self.cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                success, frame = self.cap.read()
+            if success:
+                frame = cv2.resize(frame, (SCREEN_WIDTH, SCREEN_HEIGHT))
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                frame = np.transpose(frame, (1, 0, 2))
+                video_surf = pygame.surfarray.make_surface(frame)
+                surface.blit(video_surf, (0, 0))
+            else:
+                surface.fill(COLOR_BG)
+                self._draw_bg_motifs(surface)
+        else:
+            surface.fill(COLOR_BG)
+            self._draw_bg_motifs(surface)
+        dark_overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+        dark_overlay.fill((0, 0, 0, 150))
+        surface.blit(dark_overlay, (0, 0))
+
+    def draw(self, surface: pygame.Surface):
+        """
+    /**
+     * Function draw
+     * 
+     * Internal helper function that supports the primary game logic without exposing its internals.
+     * 
+     * parameters:
+     * - surface: Method argument required for execution.
+     * 
+     * returns:
+     * - State modification or queried value based on execution.
+     */
+    """
+        self._draw_bg_video(surface)
+        cx = SCREEN_WIDTH // 2
+        if self._title_img:
+            r = self._title_img.get_rect(centerx=cx, centery=100)
+            surface.blit(self._title_img, r)
+        else:
+            tf = self._get_title_font()
+            title_text = 'BULLET AND BLUFF'
+            title_surf = tf.render(title_text, True, COLOR_GOLD)
+            surface.blit(title_surf, title_surf.get_rect(centerx=cx, y=100))
+        sf = self._get_sub_font()
+        sub = sf.render('Online Multiplayer Card Game', True, COLOR_TEXT_DIM)
+        surface.blit(sub, sub.get_rect(centerx=cx, y=190))
+        card_font = self._get_sub_font()
+        suits = 'A K Q J'
+        suits_surf = card_font.render(suits, True, COLOR_GOLD)
+        surface.blit(suits_surf, suits_surf.get_rect(centerx=cx, y=230))
+        for f in self.fields:
+            f.draw(surface)
+        uname = self.input_username.text.strip()
+        self.btn_connect.enabled = len(uname) > 0
+        self.btn_connect.draw(surface)
+        # Reconnect button and info — always reflect the currently-typed username
+        # so the user can see which session RECONNECT will use.
+        active_session = load_session(uname) if uname else self._saved_session
+        if active_session:
+            self.btn_reconnect.draw(surface)
+            if self._reconn_font is None:
+                self._reconn_font = get_custom_font(FONT_SIZE_TINY)
+            info_text = f"Previous session: {active_session['username']} @ {active_session['ip']}:{active_session['port']}"
+            info_surf = self._reconn_font.render(info_text, True, COLOR_ORANGE)
+            surface.blit(info_surf, info_surf.get_rect(centerx=cx, y=652))
+        if self.error_msg:
+            ef = self._get_err_font()
+            err = ef.render(self.error_msg, True, COLOR_RED)
+            err_y = 680 if self._saved_session else 590
+            surface.blit(err, err.get_rect(centerx=cx, y=err_y))
+
+    def _draw_bg_motifs(self, surface: pygame.Surface):
+        """
+    /**
+     * Function _draw_bg_motifs
+     * 
+     * Internal helper function that supports the primary game logic without exposing its internals.
+     * 
+     * parameters:
+     * - surface: Method argument required for execution.
+     * 
+     * returns:
+     * - State modification or queried value based on execution.
+     */
+    """
+        t = time.time() - self._start_time
+        font = self._get_sub_font()
+        symbols = ['A', 'K', 'Q', 'J']
+        for i in range(8):
+            x = (i * 170 + int(t * 15)) % (SCREEN_WIDTH + 100) - 50
+            y = 50 + i * 85 + int(math.sin(t + i) * 20)
+            sym = symbols[i % 4]
+            txt = font.render(sym, True, (30, 30, 30))
+            surface.blit(txt, (x, y))
