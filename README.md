@@ -85,7 +85,7 @@ Berikut adalah rincian Implementasi sesuai dengan Syarat dan Ketentuan:
 
 **Protokol Utama:** TCP (Transmission Control Protocol)
 
-Permainan *Liar's Deck* dirancang dengan siklus *turn-based* asinkron. Aspek terpenting dalam komputasinya adalah **urutan** dan **keabsahan** paket.
+Permainan *B&B* dirancang dengan siklus *turn-based* asinkron. Aspek terpenting dalam komputasinya adalah **urutan** dan **keabsahan** paket.
 
 Jika menggunakan UDP (connectionless), ada risiko *packet loss* di mana aksi klien tidak diterima server, sehingga sesi game dapat terhenti karena status kedua pihak tidak sinkron. TCP mengatasi hal ini melalui **Guaranteed Delivery** dan pengurutan paket secara linear (jika 2 aksi dikirim dalam selang 0.1 detik, server memprosesnya secara berurutan). Overhead latensi TCP tidak menjadi masalah pada game berbasis giliran, di mana reliabilitas pengiriman lebih diprioritaskan daripada transmisi instan seperti pada UDP.
 
